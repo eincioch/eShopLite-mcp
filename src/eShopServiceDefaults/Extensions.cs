@@ -61,6 +61,7 @@ namespace Microsoft.Extensions.Hosting
 
             // enable openai telemetry
             AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
+            AppContext.SetSwitch("Microsoft.SemanticKernel.Experimental.GenAI.EnableOTelDiagnosticsSensitive", true);
 
             builder.Services.AddOpenTelemetry()
                 .WithMetrics(metrics =>
@@ -68,6 +69,7 @@ namespace Microsoft.Extensions.Hosting
                     metrics.AddAspNetCoreInstrumentation()
                         .AddHttpClientInstrumentation()
                         .AddRuntimeInstrumentation()
+                        .AddMeter("Microsoft.SemanticKernel*")
                         .AddMeter("OpenAI.*");
                 })
                 .WithTracing(tracing =>
@@ -76,6 +78,7 @@ namespace Microsoft.Extensions.Hosting
                         // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
                         //.AddGrpcClientInstrumentation()
                         .AddHttpClientInstrumentation()
+                        .AddSource("Microsoft.SemanticKernel*")
                         .AddSource("OpenAI.*");
                 });
 

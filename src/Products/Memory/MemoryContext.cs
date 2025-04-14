@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SearchEntities;
-using DataEntities;
+﻿using DataEntities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.VectorData;
+using Microsoft.SemanticKernel.Connectors.InMemory;
+using Newtonsoft.Json;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
-using VectorEntities;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Microsoft.Extensions.VectorData;
-using Newtonsoft.Json;
 using Products.Models;
+using SearchEntities;
+using System.Text;
+using VectorEntities;
 
 namespace Products.Memory;
 
@@ -88,10 +89,11 @@ public class MemoryContext
             _isMemoryCollectionInitialized = true;
         }
 
-        var response = new SearchResponse();
-        response.Response = $"I don't know the answer for your question. Your question is: [{search}]";
-        Product? firstProduct = new Product();
-        var responseText = "";
+        var response = new SearchResponse
+        {
+            Response = $"I don't know the answer for your question. Your question is: [{search}]"
+        };
+
         try
         {
             var result = await _embeddingClient.GenerateEmbeddingAsync(search);
@@ -104,34 +106,54 @@ public class MemoryContext
 
             // search the vector database for the most similar product        
             var searchResults = await _productsCollection.VectorizedSearchAsync(vectorSearchQuery, searchOptions);
-            double searchScore = 0.0;
+            var sbFoundProducts = new StringBuilder();
+            int productPosition = 1;
             await foreach (var searchItem in searchResults.Results)
             {
                 if (searchItem.Score > 0.5)
                 {
-                    // product found, search the db for the product details                    
-                    firstProduct = new Product
+                    var product = await db.FindAsync<Product>(searchItem.Record.Id);
+                    if (product != null)
                     {
-                        Id = searchItem.Record.Id,
-                        Name = searchItem.Record.Name,
-                        Description = searchItem.Record.Description,
-                        Price = searchItem.Record.Price,
-                        ImageUrl = searchItem.Record.ImageUrl
-                    };
-
-                    searchScore = searchItem.Score.Value;
-                    responseText = $"The product [{firstProduct.Name}] fits with the search criteria [{search}][{searchItem.Score.Value.ToString("0.00")}]";
-                    _logger.LogInformation($"Search Response: {responseText}");
+                        response.Products.Add(product);
+                        sbFoundProducts.AppendLine($"- Product {productPosition}:");
+                        sbFoundProducts.AppendLine($"  - Name: {product.Name}");
+                        sbFoundProducts.AppendLine($"  - Description: {product.Description}");
+                        sbFoundProducts.AppendLine($"  - Price: {product.Price}");
+                        productPosition++;
+                    }
                 }
             }
 
+            //double searchScore = 0.0;
+            //await foreach (var searchItem in searchResults.Results)
+            //{
+            //    if (searchItem.Score > 0.5)
+            //    {
+            //        // product found, search the db for the product details                    
+            //        firstProduct = new Product
+            //        {
+            //            Id = searchItem.Record.Id,
+            //            Name = searchItem.Record.Name,
+            //            Description = searchItem.Record.Description,
+            //            Price = searchItem.Record.Price,
+            //            ImageUrl = searchItem.Record.ImageUrl
+            //        };
+
+            //        searchScore = searchItem.Score.Value;
+            //        responseText = $"The product [{firstProduct.Name}] fits with the search criteria [{search}][{searchItem.Score.Value.ToString("0.00")}]";
+            //        _logger.LogInformation($"Search Response: {responseText}");
+            //    }
+            //}
+
             // let's improve the response message
-            var prompt = @$"You are an intelligent assistant helping clients with their search about outdoor products. Generate a catchy and friendly message using the following information:
+            var prompt = @$"You are an intelligent assistant helping clients with their search about outdoor products. 
+Generate a catchy and friendly message using the information below.
+Add a comparison between the products found and the search criteria.
+Include products details.
     - User Question: {search}
-    - Found Product Name: {firstProduct.Name}
-    - Found Product Description: {firstProduct.Description}
-    - Found Product Price: {firstProduct.Price}
-Include the found product information in the response to the user question.";
+    - Found Products: 
+{sbFoundProducts}";
 
             var messages = new List<ChatMessage>
     {
@@ -142,20 +164,13 @@ Include the found product information in the response to the user question.";
             _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
 
             var resultPrompt = await _chatClient.CompleteChatAsync(messages);
-            responseText = resultPrompt.Value.Content[0].Text!;
-
-            // create a response object
-            response = new SearchResponse
-            {
-                Products = firstProduct == null ? [new Product()] : [firstProduct],
-                Response = responseText
-            };
+            response.Response = resultPrompt.Value.Content[0].Text!;
 
         }
         catch (Exception ex)
         {
-            // Handle exceptions (log them, rethrow, etc.)
             response.Response = $"An error occurred: {ex.Message}";
+            _logger.LogError(ex, "Error during search");
         }
         return response;
     }
