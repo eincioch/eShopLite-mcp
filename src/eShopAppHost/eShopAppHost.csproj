@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\eShopMcpSseServer\eShopMcpSseServer.csproj" />
+    <ProjectReference Include="..\OnlineResearcher\OnlineResearcher.csproj" />
     <ProjectReference Include="..\Products\Products.csproj" />
     <ProjectReference Include="..\Store\Store.csproj" />
   </ItemGroup>

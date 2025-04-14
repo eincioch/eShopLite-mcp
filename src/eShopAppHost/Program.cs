@@ -9,7 +9,12 @@ var products = builder.AddProject<Projects.Products>("products")
     .WithReference(sqldb)
     .WaitFor(sqldb);
 
+var onlineresearcher = builder.AddProject<Projects.OnlineResearcher>("onlineresearcher")
+    .WithExternalHttpEndpoints();
+
 var eshopmcpserver = builder.AddProject<Projects.eShopMcpSseServer>("eshopmcpserver")
+    .WithReference(onlineresearcher)
+    .WaitFor(onlineresearcher)
     .WithReference(products)
     .WaitFor(products)
     .WithExternalHttpEndpoints();
@@ -53,6 +58,5 @@ if (builder.ExecutionContext.IsPublishMode)
         .WithReference(aoai)
         .WithExternalHttpEndpoints();
 }
-
 
 builder.Build().Run();
