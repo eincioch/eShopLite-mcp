@@ -2,7 +2,6 @@
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using SearchEntities;
-using System.Web;
 
 namespace Store.Services;
 
@@ -35,7 +34,7 @@ public class McpServerService
         {
             // init chat messages
             ChatMessages = [];
-            ChatMessages.Add(new ChatMessage(ChatRole.System, "You are a helpful assistant. You always replies using text and emojis. You never generate HTML or Markdown. You only do what the user ask you to do. If you don't have a function or a tool to answer a question, you just answer que question."));
+            ChatMessages.Add(new ChatMessage(ChatRole.System, "You are a helpful assistant. You always replies using text and emojis. You only do what the user ask you to do. If you don't have a function or a tool to answer a question, you just answer que question."));
 
             ChatOptions chatOptions = new ChatOptions
             {

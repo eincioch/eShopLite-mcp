@@ -3,7 +3,6 @@ using McpToolsEntities;
 using ModelContextProtocol.Server;
 using SearchEntities;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace eShopMcpSseServer.Tools;
 
