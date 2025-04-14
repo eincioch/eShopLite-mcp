@@ -4,24 +4,30 @@ using Azure.Identity;
 using McpToolsEntities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OnlineResearcher.Controllers;
 
-namespace OnlineResearcher.Controllers;
+namespace OnlineResearcher.EndPoints;
 
-[ApiController]
-[Route("[controller]")]
-public class OnlineResearchController : ControllerBase
+public static class OnlineResearchEndPoints 
 {
-    private readonly ILogger<OnlineResearchController> logger;
-    private readonly IConfiguration config;
-
-    public OnlineResearchController(ILogger<OnlineResearchController> logger, IConfiguration config)
+    public static void MapOnlineResearchEndpoints(
+        this IEndpointRouteBuilder routes)
     {
-        this.logger = logger;
-        this.config = config;
+        routes.MapGet("/", () => $"Online Research API - {DateTime.Now}").ExcludeFromDescription();
+
+        routes.MapGet("/searchonline", 
+            async (string query, 
+            ILogger logger,
+            IConfiguration config) =>
+            {
+                return await SearchOnlineAsync(query, logger, config);
+            })
+            .WithName("SearchOnline")
+            .Produces<OnlineSearchToolResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
     }
 
-    [HttpGet(Name = "SearchOnline")]
-    public async Task<OnlineSearchToolResponse> SearchOnlineAsync(string query)
+    public static async Task<OnlineSearchToolResponse> SearchOnlineAsync(string query, ILogger logger, IConfiguration config)
     {
         logger.LogInformation("==========================");
         logger.LogInformation($"Search online for the query: {query}");
@@ -108,7 +114,7 @@ public class OnlineResearchController : ControllerBase
             logger.LogInformation($"{threadMessage.CreatedAt:yyyy-MM-dd HH:mm:ss} - {threadMessage.Role,10}: ");
             if (threadMessage.Role.ToString().ToLower() == "assistant")
             {
-                foreach (Azure.AI.Projects.MessageContent contentItem in threadMessage.ContentItems)
+                foreach (MessageContent contentItem in threadMessage.ContentItems)
                 {
                     if (contentItem is MessageTextContent textItem)
                     {

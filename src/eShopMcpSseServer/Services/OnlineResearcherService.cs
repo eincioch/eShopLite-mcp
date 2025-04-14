@@ -19,7 +19,7 @@ public class OnlineResearcherService
         {
             // call the desired Endpoint
             HttpResponseMessage response = null;
-            response = await httpClient.GetAsync($"/SearchOnline/{searchTerm}");
+            response = await httpClient.GetAsync($"/searchonline/{searchTerm}");
 
             var responseText = await response.Content.ReadAsStringAsync();
 
