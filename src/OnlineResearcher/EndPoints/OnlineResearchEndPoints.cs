@@ -2,8 +2,6 @@ using Azure.AI.Projects;
 using Azure.Core;
 using Azure.Identity;
 using McpToolsEntities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OnlineResearcher.Controllers;
 
 namespace OnlineResearcher.EndPoints;
@@ -13,11 +11,13 @@ public static class OnlineResearchEndPoints
     public static void MapOnlineResearchEndpoints(
         this IEndpointRouteBuilder routes)
     {
+        var group = routes.MapGroup("/api");
+
         routes.MapGet("/", () => $"Online Research API - {DateTime.Now}").ExcludeFromDescription();
 
-        routes.MapGet("/searchonline", 
-            async (string query, 
-            ILogger logger,
+        routes.MapGet("/searchonline/{query}", 
+            async (string query,
+            ILogger<Program> logger,
             IConfiguration config) =>
             {
                 return await SearchOnlineAsync(query, logger, config);
@@ -27,7 +27,7 @@ public static class OnlineResearchEndPoints
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    public static async Task<OnlineSearchToolResponse> SearchOnlineAsync(string query, ILogger logger, IConfiguration config)
+    internal static async Task<OnlineSearchToolResponse> SearchOnlineAsync(string query, ILogger<Program> logger, IConfiguration config)
     {
         logger.LogInformation("==========================");
         logger.LogInformation($"Search online for the query: {query}");
