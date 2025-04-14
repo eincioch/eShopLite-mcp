@@ -12,6 +12,10 @@ builder.Services.AddSingleton<ProductService>();
 builder.Services.AddHttpClient<ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
+builder.Services.AddSingleton<OnlineResearcherService>();
+builder.Services.AddHttpClient<OnlineResearcherService>(
+    static client => client.BaseAddress = new("https+http://onlineresearcher"));
+
 // add MCP server
 builder.Services.AddMcpServer().WithToolsFromAssembly();
 

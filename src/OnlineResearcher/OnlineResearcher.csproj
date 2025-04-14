@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />
+    <ProjectReference Include="..\McpToolsEntities\McpToolsEntities.csproj" />
   </ItemGroup>
 
 </Project>
