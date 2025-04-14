@@ -33,10 +33,18 @@ public static class OnlineResearchEndPoints
         logger.LogInformation($"Search online for the query: {query}");
 
         // read settings from user secrets
-        var cnnstring = config["aifoundryproject:cnnstring"];
-        var tenantid = config["aifoundryproject:tenantid"];
-        var searchagentid = config["aifoundryproject:searchagentid"];
-        var bingsearchconnectionName = config["aifoundryproject:groundingcnnname"];
+        var cnnstring = config["aifoundryproject_cnnstring"];
+        var tenantid = config["aifoundryproject_tenantid"];
+        var searchagentid = config["aifoundryproject_searchagentid"];
+        var bingsearchconnectionName = config["aifoundryproject_groundingcnnname"];
+
+        // show in the log the values from config
+        logger.LogInformation($"Configuration values:");
+        logger.LogInformation($"AI Foundry Project - cnnstring: {cnnstring}");
+        logger.LogInformation($"AI Foundry Project - tenantid: {tenantid}");
+        logger.LogInformation($"AI Foundry Project - searchagentid: {searchagentid}");
+        logger.LogInformation($"AI Foundry Project - bingsearchconnectionName: {bingsearchconnectionName}");
+
 
         // Adding the custom headers policy
         var clientOptions = new AIProjectClientOptions();
