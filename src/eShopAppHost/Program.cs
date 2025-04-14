@@ -21,6 +21,8 @@ var store = builder.AddProject<Projects.Store>("store")
     .WaitFor(eshopmcpserver)
     .WithExternalHttpEndpoints();
 
+builder.AddMCPInspector().WithSSE(eshopmcpserver);
+
 if (builder.ExecutionContext.IsPublishMode)
 {
     // production code uses Azure services, so we need to add them here
@@ -51,5 +53,6 @@ if (builder.ExecutionContext.IsPublishMode)
         .WithReference(aoai)
         .WithExternalHttpEndpoints();
 }
+
 
 builder.Build().Run();

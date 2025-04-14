@@ -48,14 +48,47 @@
                     <div class="col-md-4"><strong>Function Name:</strong></div>
                     <div class="col-md-8">@searchResponse.McpFunctionCallName</div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4"><strong>Server Name:</strong></div>
-                    <div class="col-md-8">@searchResponse.McpServerInfoName</div>
-                </div>
             </div>
         </div>
     </div>
 }
+
+<div class="card mb-3">
+    <div class="card-header" @onclick="ToggleToolsInfo" style="cursor: pointer;">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Available MCP Server Tools</span>
+            <i class="@(showToolsInfo ? "oi oi-chevron-top" : "oi oi-chevron-bottom")"></i>
+        </div>
+    </div>
+    <div class="collapse @(showToolsInfo ? "show" : "")" id="toolsDetails">
+        <div class="card-body">
+            @if (tools != null && tools.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tool in tools)
+                        {
+                            <tr>
+                                <td>@tool.Name</td>
+                                <td>@tool.Description</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No tools available</p>
+            }
+        </div>
+    </div>
+</div>
 
 @if (isLoading)
 {
@@ -106,6 +139,13 @@ else if (searchResponse.Products != null && searchResponse.Products.Count > 0)
     private bool isLoading = false;
     private string errorMessage = "";
     private bool showFunctionInfo = false;
+    private bool showToolsInfo = false;
+    private IList<ModelContextProtocol.Client.McpClientTool> tools;
+
+    protected override void OnInitialized()
+    {
+        tools = McpServerService.GetTools();
+    }
 
     private async Task DoSearch(MouseEventArgs e)
     {
@@ -122,7 +162,7 @@ else if (searchResponse.Products != null && searchResponse.Products.Count > 0)
             else
             {
                 searchResponse = await ProductService.Search(searchTerm, smartSearch);
-            }           
+            }
 
         }
         catch (Exception ex)
@@ -134,8 +174,14 @@ else if (searchResponse.Products != null && searchResponse.Products.Count > 0)
             isLoading = false;
         }
     }
+
     private void ToggleFunctionInfo()
     {
         showFunctionInfo = !showFunctionInfo;
+    }
+
+    private void ToggleToolsInfo()
+    {
+        showToolsInfo = !showToolsInfo;
     }
 }

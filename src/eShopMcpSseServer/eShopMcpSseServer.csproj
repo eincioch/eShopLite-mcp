@@ -8,12 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.4" />
+    <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DataEntities\DataEntities.csproj" />
     <ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />
+    <ProjectReference Include="..\McpToolsEntities\McpToolsEntities.csproj" />
     <ProjectReference Include="..\SearchEntities\SearchEntities.csproj" />
   </ItemGroup>
 

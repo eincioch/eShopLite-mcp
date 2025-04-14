@@ -1,5 +1,6 @@
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol.Transport;
@@ -17,6 +18,9 @@ builder.AddServiceDefaults();
 builder.Services.AddSingleton<ProductService>();
 builder.Services.AddHttpClient<ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
+
+// add a named service for a HttpClient object named "productsHttpClient"
+builder.Services.AddHttpClient("productsHttpClient", static client => client.BaseAddress = new("https+http://products"));
 
 builder.Services.AddSingleton<McpServerService>();
 
@@ -73,8 +77,14 @@ builder.Services.AddSingleton<ChatClient>(serviceProvider =>
 // create Mcp Client
 builder.Services.AddSingleton<IMcpClient>(serviceProvider =>
 {
+    // get named service for a HttpClient object named "productsHttpClient"
+    var h = serviceProvider.GetService<IHttpClientFactory>();
+    var httpClient = h.CreateClient("productsHttpClient");
+
     McpClientOptions mcpClientOptions = new()
-    { ClientInfo = new() { Name = "AspNetCoreSseClient", Version = "1.0.0" } };
+    {
+        ClientInfo = new() { Name = "AspNetCoreSseClient", Version = "1.0.0" }
+    };
 
     // can't use the service discovery for ["https +http://aspnetsseserver"]
     // fix: read the environment value for the key 'services__aspnetsseserver__https__0' to get the url for the aspnet core sse server
@@ -82,15 +92,14 @@ builder.Services.AddSingleton<IMcpClient>(serviceProvider =>
     var name = $"services__{serviceName}__https__0";
     var url = Environment.GetEnvironmentVariable(name) + "/sse";
 
-    McpServerConfig mcpServerConfig = new()
+    SseClientTransportOptions sseClientTransportOptions = new()
     {
-        Id = "AspNetCoreSse",
-        Name = "AspNetCoreSse",
-        TransportType = TransportTypes.Sse,
-        Location = url
+        Endpoint = new Uri(url)
     };
 
-    var mcpClient = McpClientFactory.CreateAsync(mcpServerConfig, mcpClientOptions).GetAwaiter().GetResult();
+    SseClientTransport clientTransport = new(sseClientTransportOptions, httpClient);
+
+    var mcpClient = McpClientFactory.CreateAsync(clientTransport, mcpClientOptions).GetAwaiter().GetResult();
     return mcpClient;
 });
 

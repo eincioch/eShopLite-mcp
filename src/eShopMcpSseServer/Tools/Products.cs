@@ -1,4 +1,5 @@
 ﻿using eShopMcpSseServer.Services;
+using McpToolsEntities;
 using ModelContextProtocol.Server;
 using SearchEntities;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ namespace eShopMcpSseServer.Tools;
 public static class Products 
 {
     [McpServerTool(Name = "SemanticSearchProducts"), Description("Performs a search in the outdoor products catalog. Returns a text with the found products")]
-    public static async Task<SearchResponse> SemanticSearchProducts(
+    public static async Task<ProductsSearchToolResponse> SemanticSearchProducts(
         ProductService productService,
         ILogger<ProductService> logger,
         IMcpServer currentMcpServer,
@@ -25,7 +26,7 @@ public static class Products
             // call the desired Endpoint
             response = await productService.Search(query, true);
             response.McpFunctionCallName = "SemanticSearchProducts";
-            response.McpServerInfoName = currentMcpServer.ServerOptions.ServerInfo.Name;
+            //response.McpServerInfoName = currentMcpServer.ServerOptions.ServerInfo.Name;
         }
         catch (Exception ex)
         {
@@ -35,6 +36,9 @@ public static class Products
 
         logger.LogInformation($"Response: {response?.Response}");
         logger.LogInformation("==========================");
-        return response;
+        return new ProductsSearchToolResponse()
+        {
+            response = response
+        };
     }
 }

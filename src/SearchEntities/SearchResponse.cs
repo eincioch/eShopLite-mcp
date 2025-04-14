@@ -10,7 +10,6 @@ public class SearchResponse
         Response = string.Empty;
         McpFunctionCallId = string.Empty;
         McpFunctionCallName = string.Empty;
-        McpServerInfoName = string.Empty;
     }
 
     [JsonPropertyName("Response")]
@@ -21,9 +20,6 @@ public class SearchResponse
 
     [JsonPropertyName("McpFunctionCallName")]
     public string McpFunctionCallName { get; set; }
-
-    [JsonPropertyName("McpServerInfoName")]
-    public string McpServerInfoName { get; set; }
 
     [JsonPropertyName("Products")]
     public List<DataEntities.Product>? Products { get; set; }

@@ -1,4 +1,5 @@
-﻿using ModelContextProtocol.Server;
+﻿using McpToolsEntities;
+using ModelContextProtocol.Server;
 using System.ComponentModel;
 
 namespace McpSample.AspNetCoreSseServer;
@@ -7,7 +8,7 @@ namespace McpSample.AspNetCoreSseServer;
 public static class WeatherTool
 {
     [McpServerTool, Description("Returns the current weather for a specific city")]
-    public static string GetWeatherForCity(string cityName)
+    public static WeatherToolResponse GetWeatherForCity(string cityName)
     {
         Console.WriteLine("==========================");
         Console.WriteLine($"Function Start WeatherTool: GetWeatherForCity called with cityName: {cityName}");
@@ -19,11 +20,15 @@ public static class WeatherTool
         var humidity = random.Next(0, 100);
         var windSpeed = random.Next(0, 20);
         var report = $"Weather in {cityName}: {temperature}°C, {condition}, Humidity: {humidity}%, Wind Speed: {windSpeed} km/h";
-
+       
         Console.WriteLine("Function report: " + report);
         Console.WriteLine($"Function End WeatherTool: GetWeatherForCity called with cityName: {cityName}");
         Console.WriteLine("==========================");
 
-        return report;
+        return new WeatherToolResponse
+        {
+            CityName = cityName,
+            WeatherCondition = report
+        }; ;
     }
 }
