@@ -1,14 +1,10 @@
-﻿using Azure.Messaging;
-using eShopMcpSseServer.Services;
+﻿using eShopMcpSseServer.Services;
 using McpToolsEntities;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
-
 using Azure.AI.Projects;
 using Azure.Core;
 using Azure.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.SemanticKernel;
 
 namespace eShopMcpSseServer.Tools;
 
@@ -25,7 +21,6 @@ public static class OnlineResearch
     {
         logger.LogInformation("==========================");
         logger.LogInformation($"Search online for the query: {query}");
-
 
         // read settings from user secrets
         var cnnstring = config["aifoundryproject:cnnstring"];

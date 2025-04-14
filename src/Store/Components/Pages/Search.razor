@@ -1,4 +1,5 @@
 ﻿@page "/search"
+@using Markdig
 @using SearchEntities
 
 @inject Store.Services.ProductService ProductService
@@ -26,7 +27,15 @@
         <label class="form-check-label" for="mcpSearch">Use MCP Server</label>
     </div>
     <hr />
-    <p class="quote">@searchResponse.Response</p>
+    @* <p class="quote">@searchResponse.Response</p> *@
+
+    @if (!string.IsNullOrEmpty(searchResponse.Response))
+    {
+        <div>
+            @((MarkupString)RenderMarkdown(searchResponse.Response))
+        </div>
+    }
+
 </div>
 
 @if (!string.IsNullOrEmpty(searchResponse.McpFunctionCallId))
@@ -141,10 +150,23 @@ else if (searchResponse.Products != null && searchResponse.Products.Count > 0)
     private bool showFunctionInfo = false;
     private bool showToolsInfo = false;
     private IList<ModelContextProtocol.Client.McpClientTool> tools;
+    private MarkdownPipeline markdownPipeline;
 
     protected override void OnInitialized()
     {
         tools = McpServerService.GetTools();
+
+        markdownPipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .Build();
+    }
+
+    private string RenderMarkdown(string markdown)
+    {
+        if (string.IsNullOrEmpty(markdown))
+            return string.Empty;
+
+        return Markdig.Markdown.ToHtml(markdown, markdownPipeline);
     }
 
     private async Task DoSearch(MouseEventArgs e)
