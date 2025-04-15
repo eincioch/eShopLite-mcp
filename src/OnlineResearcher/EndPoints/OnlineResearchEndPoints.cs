@@ -6,7 +6,7 @@ using OnlineResearcher.Controllers;
 
 namespace OnlineResearcher.EndPoints;
 
-public static class OnlineResearchEndPoints 
+public static class OnlineResearchEndPoints
 {
     public static void MapOnlineResearchEndpoints(
         this IEndpointRouteBuilder routes)
@@ -15,7 +15,7 @@ public static class OnlineResearchEndPoints
 
         routes.MapGet("/", () => $"Online Research API - {DateTime.Now}").ExcludeFromDescription();
 
-        routes.MapGet("/searchonline/{query}", 
+        routes.MapGet("/searchonline/{query}",
             async (string query,
             ILogger<Program> logger,
             IConfiguration config) =>
@@ -45,7 +45,6 @@ public static class OnlineResearchEndPoints
         logger.LogInformation($"AI Foundry Project - searchagentid: {searchagentid}");
         logger.LogInformation($"AI Foundry Project - bingsearchconnectionName: {bingsearchconnectionName}");
 
-
         // Adding the custom headers policy
         var clientOptions = new AIProjectClientOptions();
         clientOptions.AddPolicy(new CustomHeadersPolicy(), HttpPipelinePosition.PerCall);
@@ -56,9 +55,8 @@ public static class OnlineResearchEndPoints
             options.TenantId = tenantid;
         AIProjectClient projectClient = new AIProjectClient(cnnstring, new DefaultAzureCredential(options), clientOptions);
 
-
         AgentsClient agentClient = projectClient.GetAgentsClient();
-        Agent searchOnlineAgent = null;
+        Agent? searchOnlineAgent = null;
 
         if (string.IsNullOrEmpty(searchagentid))
         {
@@ -77,16 +75,16 @@ public static class OnlineResearchEndPoints
                 tools.Add(bingGroundingTool);
             }
 
-            var agentResponse = agentClient.CreateAgent(
+            var agentResponse = await agentClient.CreateAgentAsync(
                 model: "gpt-4-1106-preview",
                 name: "my-assistant",
-                instructions: "You are a helpful assistant that search online for information.",
+                instructions: "You are a helpful assistant that searches online for information.",
                 tools: tools);
             searchOnlineAgent = agentResponse.Value;
         }
         else
         {
-            searchOnlineAgent = agentClient.GetAgent(searchagentid).Value;
+            searchOnlineAgent = (await agentClient.GetAgentAsync(searchagentid)).Value;
         }
 
         // Create thread for communication
@@ -103,13 +101,11 @@ public static class OnlineResearchEndPoints
         // Run the agent
         var runResponse = await agentClient.CreateRunAsync(thread, searchOnlineAgent);
 
-        do
+        while (runResponse.Value.Status == RunStatus.Queued || runResponse.Value.Status == RunStatus.InProgress)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(500));
             runResponse = await agentClient.GetRunAsync(thread.Id, runResponse.Value.Id);
         }
-        while (runResponse.Value.Status == RunStatus.Queued
-            || runResponse.Value.Status == RunStatus.InProgress);
 
         var afterRunMessagesResponse = await agentClient.GetMessagesAsync(thread.Id);
         var messages = afterRunMessagesResponse.Value.Data;
@@ -126,8 +122,7 @@ public static class OnlineResearchEndPoints
                 {
                     if (contentItem is MessageTextContent textItem)
                     {
-                        searchResult += textItem.Text;
-                        searchResult += "\n";
+                        searchResult += textItem.Text + "\n";
                     }
                 }
             }
@@ -135,7 +130,6 @@ public static class OnlineResearchEndPoints
         logger.LogInformation($"Search result:");
         logger.LogInformation(searchResult);
         logger.LogInformation("==========================");
-
 
         return new OnlineSearchToolResponse()
         {
