@@ -7,7 +7,7 @@ namespace McpSample.AspNetCoreSseServer;
 [McpServerToolType]
 public static class WeatherTool
 {
-    [McpServerTool, Description("Returns the current weather for a specific city")]
+    [McpServerTool, Description("Returns the current weather for a specific city. Important this tool returns mock generated data.")]
     public static WeatherToolResponse GetWeatherForCity(string cityName)
     {
         Console.WriteLine("==========================");

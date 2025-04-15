@@ -10,18 +10,6 @@ namespace eShopMcpSseServer.Tools;
 [McpServerToolType]
 public static class OnlineResearch
 {
-    //[McpServerTool(Name = "OnlineSearch"), Description("Performs a search online using Bing Search APIs. Returns a text with the found content online")]
-    //public static async Task<OnlineSearchToolResponse> OnlineSearch(
-    //    ILogger<ProductService> logger,
-    //    OnlineResearcherService researcherService,
-    //    [Description("The search query to be used in the online search")] string query)
-    //{
-    //    var researchResponse = await researcherService.Search(query);
-    //    return researchResponse;
-    //}
-
-    //[McpServerTool(Name = "OnlineSearchWithOutdoorProducts"), Description("Performs a search online using Bing Search APIs, then search the outdoor product to see if there is a match of products. Returns the online search with a collection of outdoor products.")]
-    //public static async Task<ProductsSearchToolResponse> OnlineSearchWithOutdoorProducts(
     [McpServerTool(Name = "OnlineSearch"), Description("Performs a search online using Bing Search APIs. Returns a text with the found content online")]
     public static async Task<ProductsSearchToolResponse> OnlineSearch(
      ILogger<ProductService> logger,
