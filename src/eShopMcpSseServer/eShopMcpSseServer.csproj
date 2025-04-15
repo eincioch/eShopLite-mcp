@@ -10,14 +10,16 @@
 	<ItemGroup>
 		<PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.7" />
 
-		<!--Perform Search Online using Azure AI Agent Service-->
+		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.1.0-preview.1.25121.10" />
+
+		<!--Perform Search Online using Azure AI Agent Service--><!--
 		<PackageReference Include="Azure.AI.Projects" Version="1.0.0-beta.5" />
 		<PackageReference Include="Azure.Identity" Version="1.14.0-beta.2" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
 		<PackageReference Include="Microsoft.SemanticKernel.Agents.Abstractions" Version="1.44.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.44.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.44.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.44.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.44.0" />-->
 	</ItemGroup>
 
 	<ItemGroup>
