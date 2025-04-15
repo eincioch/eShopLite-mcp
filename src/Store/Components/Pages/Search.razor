@@ -108,7 +108,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         @errorMessage
     </div>
 }
-else if (searchResponse.Products != null && searchResponse.Products.Count > 0)
+@if (searchResponse.Products != null && searchResponse.Products.Count > 0)
 {
     <table class="table">
         <thead>

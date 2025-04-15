@@ -60,10 +60,7 @@ public class ProductService
                 response = await httpClient.GetAsync($"/api/product/search/{searchTerm}");
             }
 
-            var responseText = await response.Content.ReadAsStringAsync();
-
             _logger.LogInformation($"Http status code: {response.StatusCode}");
-            _logger.LogInformation($"Http response content: {responseText}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -71,12 +68,12 @@ public class ProductService
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
-                _logger.LogError($"Internal Server Error: {responseText}");
-                throw new Exception($"Internal Server Error: {responseText}");
+                _logger.LogError($"Internal Server Error: {response.Content}");
+                throw new Exception($"Internal Server Error: {response.Content}");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                _logger.LogWarning($"Not Found: {responseText}");
+                _logger.LogWarning($"Not Found: {response.Content}");
                 return null;
             }
         }

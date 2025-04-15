@@ -26,7 +26,8 @@ var store = builder.AddProject<Projects.Store>("store")
     .WaitFor(eshopmcpserver)
     .WithExternalHttpEndpoints();
 
-builder.AddMCPInspector().WithSSE(eshopmcpserver);
+// optional to check the SSE server
+// builder.AddMCPInspector().WithSSE(eshopmcpserver);
 
 if (builder.ExecutionContext.IsPublishMode)
 {
