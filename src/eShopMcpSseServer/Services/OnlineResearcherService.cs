@@ -21,23 +21,23 @@ public class OnlineResearcherService
             HttpResponseMessage response = null;
             response = await httpClient.GetAsync($"/searchonline/{searchTerm}");
 
-            var responseText = await response.Content.ReadAsStringAsync();
+            //var responseText = await response.Content .ReadAsStringAsync();
 
             _logger.LogInformation($"Http status code: {response.StatusCode}");
-            _logger.LogInformation($"Http response content: {responseText}");
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<OnlineSearchToolResponse>();
+                //OnlineSearchToolResponse toolResponse = await response.Content.ReadFromJsonAsync<OnlineSearchToolResponse>();
+                OnlineSearchToolResponse toolResponse = await response.Content.ReadFromJsonAsync<OnlineSearchToolResponse>();
+                return toolResponse;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
-                _logger.LogError($"Internal Server Error: {responseText}");
-                throw new Exception($"Internal Server Error: {responseText}");
+                throw new Exception($"Internal Server Error: {response.Content}");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                _logger.LogWarning($"Not Found: {responseText}");
+                _logger.LogWarning($"Not Found: {response.Content}");
                 return null;
             }
         }
